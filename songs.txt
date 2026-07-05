@@ -1,0 +1,3 @@
+Bohemian Rhapsody,Queen,A Night at the Opera,5,55
+Hotel California,Eagles,Hotel California,6,30
+Imagine,John Lennon,Imagine,3,4

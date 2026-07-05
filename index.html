@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C-Unplugged: Spotify-style Music Player</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Toast Notification -->
+    <div id="toastNotification" class="toast-notification">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <span id="toastMessage">Song successfully added!</span>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-container">
+                <svg class="logo-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 11v1c0 2.2 1.8 4 4 4v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V5h2c1.96 0 3.5 1.54 3.5 3.5 0 .91-.39 1.74-1.02 2.33.5.4.82.99.82 1.67 0 .83-.67 1.5-1.5 1.5H13v2h2.9c.9 0 1.64.58 1.9 1.39z" fill="currentColor"/>
+                </svg>
+                <span class="logo-text">C-Unplugged</span>
+            </div>
+
+            <nav class="nav-group">
+                <a class="nav-item active" id="navAllSongs">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                    </svg>
+                    <span>All Songs</span>
+                </a>
+                <a class="nav-item" id="navAlbums">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                    </svg>
+                    <span>Albums</span>
+                </a>
+                <a class="nav-item" id="navHistory">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Command Log</span>
+                </a>
+            </nav>
+
+            <div class="divider"></div>
+
+            <div class="library-header">
+                <span class="library-title">Playlists</span>
+                <button class="btn-add-playlist" id="btnCreatePlaylist" title="Create Playlist">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Dynamic Playlists List -->
+            <div class="playlists-list" id="playlistsList">
+                <!-- Injected via JS -->
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header with search and action buttons -->
+            <header class="main-header">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <button class="btn-control" id="mobileMenuToggle" style="display: none; padding: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <div class="search-bar">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search songs or artists...">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-secondary" id="btnAddSong">Add Song to Library</button>
+                    <button class="btn btn-primary" id="btnCreateAlbum">Create Album</button>
+                </div>
+            </header>
+
+            <!-- Hero Banner -->
+            <section class="hero-banner">
+                <div class="hero-art-container">
+                    <div class="hero-art" id="heroArtBg">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="hero-info">
+                    <span class="hero-badge" id="heroContextBadge">Playlist</span>
+                    <h1 class="hero-title" id="heroTitle">All Library Tracks</h1>
+                    <p class="hero-desc" id="heroDescription">Listen to all your uploaded tracks. High-fidelity web synthesis audio playback built natively in Javascript.</p>
+                    <div class="hero-meta">
+                        <span id="heroSongCount">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13" />
+                            </svg>
+                            3 Songs
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Grid: List on Left, Active Song Card on Right -->
+            <div class="dashboard-grid">
+                <!-- Track List Section -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title" id="trackListTitle">Tracks</h2>
+                        <div id="playlistActions" style="display: none; gap: 8px;">
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;" id="btnDeletePlaylist">Delete Playlist</button>
+                        </div>
+                    </div>
+                    
+                    <div class="track-list-header">
+                        <div>#</div>
+                        <div>Title</div>
+                        <div>Album</div>
+                        <div>Duration</div>
+                        <div style="text-align: right;">Action</div>
+                    </div>
+                    
+                    <div class="track-list" id="trackListContainer">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+
+                <!-- Right Side Widget: Vinyl & Equalizer Visualizer -->
+                <div class="now-playing-card" id="nowPlayingCard">
+                    <div class="card-vinyl-container">
+                        <div class="card-vinyl">
+                            <div class="vinyl-label" id="vinylLabelArt"></div>
+                        </div>
+                    </div>
+                    <div class="card-info">
+                        <h3 class="card-title" id="cardSongTitle">No Track Playing</h3>
+                        <p class="card-artist" id="cardSongArtist">Select a track to play</p>
+                    </div>
+                    <div class="visualizer-container">
+                        <canvas id="visualizer"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bottom Player Control Bar -->
+    <footer class="player-bar">
+        <!-- Left Side: Track Info -->
+        <div class="player-left">
+            <div class="player-album-art" id="playerAlbumArt">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                </svg>
+            </div>
+            <div class="player-track-info">
+                <div class="player-track-title" id="playerTrackTitle">No Song Playing</div>
+                <div class="player-track-artist" id="playerTrackArtist">-</div>
+            </div>
+        </div>
+
+        <!-- Center: Playback Controls & Seek Bar -->
+        <div class="player-center">
+            <div class="playback-controls">
+                <button class="btn-control" id="btnShuffle" title="Shuffle (not active)">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                </button>
+                <button class="btn-control" id="btnPrev" title="Previous Track">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.334 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
+                    </svg>
+                </button>
+                <button class="btn-control btn-control-play" id="btnPlayPause" title="Play">
+                    <svg id="playIcon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                    </svg>
+                </button>
+                <button class="btn-control" id="btnNext" title="Next Track">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.934 12.8a1 1 0 000-1.6l-5.334-4A1 1 0 005 8v8a1 1 0 001.6.8l5.334-4zM19.934 12.8a1 1 0 000-1.6l-5.334-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.334-4z" />
+                    </svg>
+                </button>
+                <button class="btn-control" id="btnLoop" title="Loop Playlist">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 9H19M9 17H5M4 4v5h5M17 19v-5h-.582m-15.356-2A8.002 8.002 0 112.79 15H5m8 2h4M17 19v-5h-5" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="progress-container">
+                <span class="time-display" id="timeCurrent">0:00</span>
+                <div class="progress-bar-wrap" id="progressBarWrap">
+                    <div class="progress-bar-fill" id="progressBarFill">
+                        <div class="progress-handle"></div>
+                    </div>
+                </div>
+                <span class="time-display" id="timeDuration">0:00</span>
+            </div>
+        </div>
+
+        <!-- Right: Volume Controls -->
+        <div class="player-right">
+            <button class="btn-control" id="btnMute">
+                <svg id="volumeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>
+            </button>
+            <div class="volume-container">
+                <div class="volume-bar-wrap" id="volumeBarWrap">
+                    <div class="volume-bar-fill" id="volumeBarFill"></div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal: Add Song -->
+    <div class="modal-overlay" id="addSongModal">
+        <div class="modal-box">
+            <h2 class="modal-title">Add Song to Library</h2>
+            <form id="addSongForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="songTitle">Song Title</label>
+                    <input type="text" id="songTitle" required placeholder="e.g. Stairway to Heaven">
+                </div>
+                <div class="form-group">
+                    <label for="songArtist">Artist / Singer</label>
+                    <input type="text" id="songArtist" required placeholder="e.g. Led Zeppelin">
+                </div>
+                <div class="form-group">
+                    <label for="songAlbum">Album</label>
+                    <input type="text" id="songAlbum" required placeholder="e.g. Led Zeppelin IV">
+                </div>
+                <div style="display: flex; gap: 16px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="songMin">Minutes</label>
+                        <input type="number" id="songMin" min="0" max="59" value="3" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="songSec">Seconds</label>
+                        <input type="number" id="songSec" min="0" max="59" value="0" required>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary closeModalBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Song</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Create Playlist -->
+    <div class="modal-overlay" id="createPlaylistModal">
+        <div class="modal-box">
+            <h2 class="modal-title">Create Playlist</h2>
+            <form id="createPlaylistForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="playlistName">Playlist Name</label>
+                    <input type="text" id="playlistName" required placeholder="e.g. Rock Classics">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary closeModalBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Create Album -->
+    <div class="modal-overlay" id="createAlbumModal">
+        <div class="modal-box">
+            <h2 class="modal-title">Create Album</h2>
+            <form id="createAlbumForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="albumName">Album Name</label>
+                    <input type="text" id="albumName" required placeholder="e.g. The Dark Side of the Moon">
+                </div>
+                <div class="form-group">
+                    <label for="albumYear">Release Year</label>
+                    <input type="number" id="albumYear" min="1900" max="2100" value="2026" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary closeModalBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Album</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Song to Playlist/Album -->
+    <div class="modal-overlay" id="addToPlaylistModal">
+        <div class="modal-box">
+            <h2 class="modal-title">Add Track to...</h2>
+            <form id="addToPlaylistForm" onsubmit="return false;">
+                <input type="hidden" id="addToPlaylistSongId">
+                <div class="form-group">
+                    <label for="targetSelect">Select Playlist or Album</label>
+                    <select id="targetSelect" required>
+                        <!-- Dynamic options will be injected -->
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary closeModalBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
